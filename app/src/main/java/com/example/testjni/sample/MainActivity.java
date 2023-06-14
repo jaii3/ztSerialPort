@@ -47,7 +47,7 @@ import static com.example.testjni.ZTSerialPortTest.bytesToHexString;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    char[] text22 = new char[1];
     char[] text = new char[1];
     public static Communication S7;
     byte[] buffer = new byte[1024];
