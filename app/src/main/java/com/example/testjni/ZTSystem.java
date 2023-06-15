@@ -4,14 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Environment;
 import android.os.storage.StorageManager;
+import android.util.Log;
 import android.view.View;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,15 +19,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static android.content.Context.STORAGE_SERVICE;
-
 public class ZTSystem {
     private static String TAG = "ZTSystem";
     private static ZTSystem instance = null;
 
-    public static final String ACTION_API_HIDE_NAVIGATION = "action.ACTION_API_HIDE_NAVIGATION"; //隐藏导航栏广播
-    public static final String ACTION_API_SHOW_NAVIGATION = "action.ACTION_API_SHOW_NAVIGATION"; //显示导航栏广播
-    public static final String ACTION_API_HIDE_DROP_DOWN_BOX = "action.ACTION_API_HIDE_DROP_DOWN_BOX"; // 状态栏广播
+    /**
+     * 隐藏导航栏广播
+     */
+    public static final String ACTION_API_HIDE_NAVIGATION = "action.ACTION_API_HIDE_NAVIGATION";
+
+    /**
+     * 显示导航栏广播
+     */
+    public static final String ACTION_API_SHOW_NAVIGATION = "action.ACTION_API_SHOW_NAVIGATION";
+
+    /**
+     * 状态栏广播
+     */
+    public static final String ACTION_API_HIDE_DROP_DOWN_BOX = "action.ACTION_API_HIDE_DROP_DOWN_BOX";
 
     public static Context getContext() {
         return context;
@@ -39,7 +48,7 @@ public class ZTSystem {
 
     private static Context context;
 
-    private String[] strUSBName = new String[]{"usb1", "usb2", "usb3", "usb4", "usb5"};
+    private final String[] strUSBName = new String[]{"usb1", "usb2", "usb3", "usb4", "usb5"};
 
     public static ZTSystem getInstance(Context context) {
         if (instance == null) {
@@ -53,10 +62,14 @@ public class ZTSystem {
         return instance;
     }
 
+
+    //start -导航栏/状态栏     *****************************/
+
     /**
-     * 设置 导航栏
+     * 设置 导航栏和状态栏
+     * 注：该方法永久生效，重启也生效
      *
-     * @param hide
+     * @param hide true: 隐藏导航栏 false: 显示导航栏
      */
     public void setNavigationBar(boolean hide) {
         if (!hide) {
@@ -76,6 +89,24 @@ public class ZTSystem {
         }
     }
 
+    /**
+     * 导航栏，状态栏隐藏
+     * 注：控制系统导航栏的临时 隐藏/显示， 使用此方法隐藏导航栏后，可以通过下拉或者上滑唤出状态栏
+     *
+     * @param activity activity
+     * @param hide     true: 隐藏 false: 显示
+     */
+    public void navigationBarStatusBar(Activity activity, boolean hide) {
+        if (hide && Build.VERSION.SDK_INT >= 19) {
+            View decorView = activity.getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
+
+    //end -导航栏/状态栏     *****************************/
+
+
+    //start -setTime     *****************************/
 
     /**
      * 设置时间
@@ -98,19 +129,20 @@ public class ZTSystem {
      * @param time "yyyy-MM-dd HH:mm:ss"
      */
     public void setSystemTime(String time) {
+        DataOutputStream os = null;
         try {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             Date date = format.parse(time);
             Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os = new DataOutputStream(process.getOutputStream());
             String formatDate;
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                format = new SimpleDateFormat("MMddHHmmyyyy.ss");
+                format = new SimpleDateFormat("MMddHHmmyyyy.ss", Locale.getDefault());
                 formatDate = format.format(date);
                 os.writeBytes("date " + formatDate + " set \n");
                 os.writeBytes("busybox hwclock -w\n");
             } else {
-                format = new SimpleDateFormat("yyyyMMdd.HHmmss");
+                format = new SimpleDateFormat("yyyyMMdd.HHmmss", Locale.getDefault());
                 formatDate = format.format(date);
                 os.writeBytes("/system/bin/date -s " + formatDate + "\n");
                 os.writeBytes("clock -w\n");
@@ -118,64 +150,73 @@ public class ZTSystem {
             os.writeBytes("exit\n");
             os.flush();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+        } finally {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
         }
     }
 
+    //end -setTime *****************************/
 
-    public String getSdCardPath() {
-        String sdCardPath;
-        List<String> sdList2 = getStoragePath(context, false, false);
 
-        if (sdList2.size() == 0) {
-            sdCardPath = null;
-        } else {
-            sdCardPath = sdList2.get(0) + File.separator;
-        }
-        return sdCardPath;
+    //start -存储路径*****************************/
+
+    /**
+     * 获取内部寸路径 （表示应用的内部存储目录）
+     *
+     * @return 例:/data/user/0/your_package/files
+     */
+    public String getInternalStorageDirectoryPath() {
+        File internalStorage = context.getFilesDir();
+        return internalStorage.getAbsolutePath();
     }
 
+    /**
+     * 获取外部存储路径
+     *
+     * @return 例:/storage/emulated/0
+     */
+    public String getExtStorageDirectoryPath() {
+
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
+    }
+
+    /**
+     * 获取外置SD卡存储路径
+     *
+     * @return 例:/storage/36BC-A2FB/
+     */
     public String getExtSdCardPath() {
         String extSdcardPath;
-        //List<String> sdList1 = getStoragePath(context, true, false);
-        List<FileStoreDevices> sdList1 = getStoragePath2(context, false);
+        List<FileStoreDevices> sdList1 = getStoragePath(context, false);
         if (sdList1.size() == 0) {
             extSdcardPath = null;
         } else {
             extSdcardPath = sdList1.get(0).path + File.separator;
         }
-
         return extSdcardPath;
     }
 
     /**
-     * 获取第一个USB设备
+     * 获取指定USB存储路径
      *
-     * @return
+     * @param usbNum 1:usb1  2:usb2  3:usb3  4:usb4  5:usb5 ....
+     * @return 例：/storage/4434-5102/
      */
-    public String getUSBPathFirst() {
+    public String getUsbPath(int usbNum) {
         String usbPath;
-        List<FileStoreDevices> sdList3 = getStoragePath2(context, true);
-        if (sdList3.size() == 0) {
+        List<FileStoreDevices> devicesList = getStoragePath(context, true);
+        if (devicesList.size() == 0) {
             usbPath = null;
         } else {
-            usbPath = sdList3.get(0).path + File.separator;
-        }
-        return usbPath;
-    }
-
-    /**
-     * @param usb_num 1:usb1  2:usb2  3:usb3  4:usb4  5:usb5 ....
-     * @return
-     */
-    public String getUSBPath(int usb_num) {
-        String usbPath;
-        List<FileStoreDevices> sdList3 = getStoragePath2(context, true);
-        if (sdList3.size() == 0) {
-            usbPath = null;
-        } else {
-            for (FileStoreDevices fsd : sdList3) {
-                if (fsd.name.equals("usb" + usb_num)) {
+            for (FileStoreDevices fsd : devicesList) {
+                if (fsd.name.equals("usb" + usbNum)) {
                     usbPath = fsd.path + File.separator;
                     return usbPath;
                 }
@@ -185,77 +226,57 @@ public class ZTSystem {
         return usbPath;
     }
 
-    public List<FileStoreDevices> getAllUSBPath() {
-        return getStoragePath2(context, true);
+
+    /**
+     * 获取第一个USB设备的存储路径
+     *
+     * @return 例：/storage/4434-5102/
+     */
+    public String getUsbPathFirst() {
+        String usbPath;
+        List<FileStoreDevices> devicesList = getStoragePath(context, true);
+        if (devicesList.size() == 0) {
+            usbPath = null;
+        } else {
+            usbPath = devicesList.get(0).path + File.separator;
+        }
+        return usbPath;
+    }
+
+
+    /**
+     * 获取全部USB存储路径
+     *
+     * @return List<FileStoreDevices>
+     */
+    public List<FileStoreDevices> getAllUsbPath() {
+        return getStoragePath(context, true);
     }
 
     /**
-     * 获取 SD卡 路径
+     * 获取外部存储路径（SD、USB)
      *
-     * @param mContext    context
-     * @param is_removale true: 外置SD卡路径
-     * @param is_usb      true: 外置USB路径
-     * @return
+     * @param context context
+     * @param isUsb   true:USB false: SD
+     * @return List<FileStoreDevices>
      */
-    List<String> getStoragePath(Context mContext, boolean is_removale, boolean is_usb) {
-        List<String> rs = new ArrayList();
-        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(STORAGE_SERVICE);
-        try {
-            Class storageVolumeClazz = null;
-            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
-            Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
-            Method getPath = storageVolumeClazz.getMethod("getPath");
-            Method isRemovable = storageVolumeClazz.getMethod("isRemovable");
-            Method isEmulated = storageVolumeClazz.getMethod("isEmulated");
-            Object result = getVolumeList.invoke(mStorageManager);
-            int length = Array.getLength(result);
-
-
-            for (int i = 0; i < length; ++i) {
-                Object storageVolumeElement = Array.get(result, i);
-                String path = (String) getPath.invoke(storageVolumeElement);
-                boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
-                if (is_removale == removable) {
-                    if (is_usb && !path.contains("usb")) {
-                        continue;
-                    }
-                    /*File sdFile = new File(path);
-                    if (sdFile.canWrite()) */
-                    {
-                        rs.add(path);
-                    }
-                }
-            }
-        } catch (ClassNotFoundException var16) {
-            var16.printStackTrace();
-        } catch (InvocationTargetException var17) {
-            var17.printStackTrace();
-        } catch (NoSuchMethodException var18) {
-            var18.printStackTrace();
-        } catch (IllegalAccessException var19) {
-            var19.printStackTrace();
-        }
-
-        return rs;
-    }
-
-    private List<FileStoreDevices> getStoragePath2(Context context, boolean isUsb) {
+    private List<FileStoreDevices> getStoragePath(Context context, boolean isUsb) {
         String path = "";
         StorageManager mStorageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
         Class<?> volumeInfoClazz;
-        Class<?> diskInfoClaszz;
+        Class<?> diskInfoClazz;
         List<FileStoreDevices> fileStoreDevices = new ArrayList();
         try {
             volumeInfoClazz = Class.forName("android.os.storage.VolumeInfo");
-            diskInfoClaszz = Class.forName("android.os.storage.DiskInfo");
+            diskInfoClazz = Class.forName("android.os.storage.DiskInfo");
             Method StorageManager_getVolumes = Class.forName("android.os.storage.StorageManager").getMethod("getVolumes");
             Method VolumeInfo_GetDisk = volumeInfoClazz.getMethod("getDisk");
             Method VolumeInfo_GetPath = volumeInfoClazz.getMethod("getPath");
-            Method DiskInfo_IsUsb = diskInfoClaszz.getMethod("isUsb");
-            Method DiskInfo_IsSd = diskInfoClaszz.getMethod("isSd");
+            Method DiskInfo_IsUsb = diskInfoClazz.getMethod("isUsb");
+            Method DiskInfo_IsSd = diskInfoClazz.getMethod("isSd");
             Method VolumeInfo_GetDescription = volumeInfoClazz.getMethod("getDescription");
-            Method DiskInfo_GetDescription = diskInfoClaszz.getMethod("getDescription");
-            Method DiskInfo_GetSysPath = diskInfoClaszz.getMethod("getSysPath");
+            Method DiskInfo_GetDescription = diskInfoClazz.getMethod("getDescription");
+            Method DiskInfo_GetSysPath = diskInfoClazz.getMethod("getSysPath");
 
             List<Object> List_VolumeInfo = (List<Object>) StorageManager_getVolumes.invoke(mStorageManager);
             assert List_VolumeInfo != null;
@@ -275,9 +296,9 @@ public class ZTSystem {
                 if (isUsb == usb && usb) {
                     assert file != null;
                     path = file.getAbsolutePath();
-                    for (String strusb : strUSBName) {
-                        if (DiskInfo_getSysPath.contains(strusb)) {
-                            fileStoreDevices.add(new FileStoreDevices(strusb, path));
+                    for (String sUsb : strUSBName) {
+                        if (DiskInfo_getSysPath.contains(sUsb)) {
+                            fileStoreDevices.add(new FileStoreDevices(sUsb, path));
                         }
                     }
                 } else if (!isUsb == sd) {
@@ -295,22 +316,19 @@ public class ZTSystem {
     }
 
 
+    //end -存储路径     *****************************/
+
+
+    //start -熄屏     *****************************/
+
+
     /**
-     * 导航栏，状态栏隐藏
+     * 熄屏/亮屏 操作
      *
-     * @param activity
+     * @return
      */
-    public void NavigationBarStatusBar(Activity activity, boolean hasFocus) {
-        if (hasFocus && Build.VERSION.SDK_INT >= 19) {
-            View decorView = activity.getWindow().getDecorView();
-            decorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
+    public int screenOffOn() {
+        return execRootCmdSilent("input keyevent 26");
     }
 
     /**
@@ -319,7 +337,7 @@ public class ZTSystem {
      * @param cmd "input keyevent 26"
      * @return
      */
-    public static int execRootCmdSilent(String cmd) {
+    private int execRootCmdSilent(String cmd) {
         int result = -1;
         DataOutputStream dos = null;
 

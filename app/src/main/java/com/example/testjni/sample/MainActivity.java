@@ -153,7 +153,12 @@ public class MainActivity extends AppCompatActivity {
         buttontime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                zTSystem.setSystemTime("2024-07-07 08:08:08");
+                try {
+                    zTSystem.setSystemTime("2024-07-07 08:08:08");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
 
                 new Thread(new Runnable() {
                     @Override
@@ -204,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
         buttonpath1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String strPath = zTSystem.getSdCardPath();
+                String strPath = zTSystem.getExtStorageDirectoryPath();
                 Message fMag = new Message();
                 fMag.what = 0;
                 fMag.obj = strPath;
