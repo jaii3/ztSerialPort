@@ -72,20 +72,24 @@ public class ZTSystem {
      * @param hide true: 隐藏导航栏 false: 显示导航栏
      */
     public void setNavigationBar(boolean hide) {
-        if (!hide) {
+        if (hide) {
+            //发送隐藏导航栏广播
             Intent intent = new Intent(ACTION_API_HIDE_NAVIGATION);
-            context.sendBroadcast(intent); //当点击“隐藏导航栏”按钮时，发送隐藏导航栏广播
+            context.sendBroadcast(intent);
 
+            //状态栏禁止下拉框
             Intent intent1 = new Intent(ACTION_API_HIDE_DROP_DOWN_BOX);
-            intent1.putExtra("state", "true"); //禁止下拉框
+            intent1.putExtra("state", "true");
             context.sendBroadcast(intent1);
         } else {
+            //发送显示导航栏广播
             Intent intent = new Intent(ACTION_API_SHOW_NAVIGATION);
-            context.sendBroadcast(intent); //当点击“显示导航栏”按钮时，发送显示导航栏广播
-
-            Intent intent1 = new Intent(ACTION_API_HIDE_DROP_DOWN_BOX);
-            intent1.putExtra("state", "false"); //允许下拉框
             context.sendBroadcast(intent);
+
+            //状态栏允许下拉框
+            Intent intent1 = new Intent(ACTION_API_HIDE_DROP_DOWN_BOX);
+            intent1.putExtra("state", "false");
+            context.sendBroadcast(intent1);
         }
     }
 
@@ -96,7 +100,7 @@ public class ZTSystem {
      * @param activity activity
      * @param hide     true: 隐藏 false: 显示
      */
-    public void navigationBarStatusBar(Activity activity, boolean hide) {
+    public void setNavigationBarStatusBar(Activity activity, boolean hide) {
         if (hide && Build.VERSION.SDK_INT >= 19) {
             View decorView = activity.getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -168,7 +172,7 @@ public class ZTSystem {
     //start -存储路径*****************************/
 
     /**
-     * 获取内部寸路径 （表示应用的内部存储目录）
+     * 获取内部存储路径 （表示应用的内部存储目录）
      *
      * @return 例:/data/user/0/your_package/files
      */
@@ -327,7 +331,7 @@ public class ZTSystem {
      *
      * @return
      */
-    public int screenOffOn() {
+    public int setScreenOffOn() {
         return execRootCmdSilent("input keyevent 26");
     }
 

@@ -22,11 +22,10 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SerailPortOpt extends SerialPortJNI{
+public class SerialPortOpt extends SerialPortJNI{
 
 	private static final String TAG = "SerialPort";
 
@@ -45,7 +44,7 @@ public class SerailPortOpt extends SerialPortJNI{
 	public int mStopBits;  //停止位
 	public int mParity;    //奇偶校验位
 
-	public SerailPortOpt(File device, int baudrate, int flags){
+	public SerialPortOpt(File device, int baudrate, int flags){
 
 		/* Check access permission */
 		if (!device.canRead() || !device.canWrite()) {

@@ -2,15 +2,37 @@ package com.example.testjni;
 
 import java.io.FileDescriptor;
 
+/**
+ * @author HP
+ */
 public class SerialPortJNI {
-    static {
-        System.loadLibrary("SerialPort");//加载.C
+    static {//加载.C
+        System.loadLibrary("SerialPort");
     }
+
+    /**
+     * @param path
+     * @param baudrate
+     * @param flags
+     * @return
+     */
     // JNI
     public native static FileDescriptor open(String path, int baudrate, int flags);
 
+    /**
+     * @param path
+     * @param baud
+     * @param dataBits
+     * @param parity
+     * @param stopBits
+     * @param flags
+     * @return
+     */
     // JNI
-    public native FileDescriptor open(String path, int baudrate, int dataBits, int parity,
-                                       int stopBits, int flags);
+    public native FileDescriptor open(String path, int baud, int dataBits, int parity, int stopBits, int flags);
+
+    /**
+     *
+     */
     public native void close();
 }

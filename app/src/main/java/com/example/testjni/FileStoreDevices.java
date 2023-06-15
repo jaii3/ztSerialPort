@@ -1,5 +1,8 @@
 package com.example.testjni;
 
+/**
+ * @author HP
+ */
 public class FileStoreDevices {
     String path;
     String name;
