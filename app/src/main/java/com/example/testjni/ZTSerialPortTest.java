@@ -1,27 +1,27 @@
 package com.example.testjni;
 
+import static java.lang.System.arraycopy;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.InvalidParameterException;
-
-import static java.lang.System.arraycopy;
 
 
 public class ZTSerialPortTest extends Communication {
-    private SerailPortOpt serialportopt;
+    private final SerailPortOpt serialportopt;
     private InputStream mInputStream;
     protected OutputStream mOutputStream;
     public boolean isOpen = false;
 
+    private byte[] rsBuffer = new byte[1024];
+
     /**
-     *
-     * @param path 串口号
+     * @param path     串口号
      * @param baudrate 波特率
      * @param dataBits 数据位
      * @param stopBits 停止位
-     * @param parity 奇偶校验位
+     * @param parity   奇偶校验位
      */
     public ZTSerialPortTest(String path, int baudrate, int dataBits, int stopBits,
                             int parity) {
@@ -32,34 +32,21 @@ public class ZTSerialPortTest extends Communication {
 
     private boolean openSerial(String devNum, int speed, int dataBits,
                                int stopBits, int parity) {
+        if (serialportopt == null) {
+            return false;
+        }
         serialportopt.mDevNum = devNum;
         serialportopt.mDataBits = dataBits;
         serialportopt.mSpeed = speed;
         serialportopt.mStopBits = stopBits;
         serialportopt.mParity = parity;
 
+        mInputStream = serialportopt.getInputStream();
+        mOutputStream = serialportopt.getOutputStream();
+        isOpen = true;
+        return true;
 
-        if (serialportopt == null) {
-            /* Read serial port parameters */
-            String path = "/dev/ttyS5";
-            int baudrate = 115200;
-
-            /* Check parameters */
-            if ( (path.length() == 0) || (baudrate == -1)) {
-                throw new InvalidParameterException();
-            }
-
-            /* Open the serial port */
-            serialportopt = new SerailPortOpt(new File(path), baudrate, 0);
-            return false;
-        } else {
-            mInputStream = serialportopt.getInputStream();
-            mOutputStream = serialportopt.getOutputStream();
-            isOpen = true;
-            return true;
-        }
     }
-
 
 
     private String toHexString(String s) {
@@ -73,7 +60,7 @@ public class ZTSerialPortTest extends Communication {
     }
 
 
-    private static byte[] HexString2Bytes(String src) {
+    private static byte[] hexString2Bytes(String src) {
         byte[] ret = new byte[src.length() / 2];
         byte[] tmp = src.getBytes();
         for (int i = 0; i < tmp.length / 2; i++) {
@@ -101,10 +88,10 @@ public class ZTSerialPortTest extends Communication {
 
 
     private static byte uniteBytes(byte src0, byte src1) {
-        byte _b0 = Byte.decode("0x" + new String(new byte[] { src0 }))
+        byte _b0 = Byte.decode("0x" + new String(new byte[]{src0}))
                 .byteValue();
         _b0 = (byte) (_b0 << 4);
-        byte _b1 = Byte.decode("0x" + new String(new byte[] { src1 }))
+        byte _b1 = Byte.decode("0x" + new String(new byte[]{src1}))
                 .byteValue();
         byte ret = (byte) (_b0 ^ _b1);
         return ret;
@@ -113,21 +100,20 @@ public class ZTSerialPortTest extends Communication {
     @Override
     public <T> void sendData(T data) {
         try {
-            mOutputStream.write((byte[])data);
-        } catch (Exception e) {
-
+            mOutputStream.write((byte[]) data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public <T> T receiveData(T data) {
-        byte[] buffer = new byte[1024];
         int size;
         if (mInputStream == null) {
             return null;
         }
         try {
-            size = mInputStream.read(buffer);
+            size = mInputStream.read(rsBuffer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -135,25 +121,23 @@ public class ZTSerialPortTest extends Communication {
         if (size > 0) {
             byte[] cutBuffer = new byte[size];
             try {
-                arraycopy(buffer, 0, cutBuffer, 0, size);
+                arraycopy(rsBuffer, 0, cutBuffer, 0, size);
                 data = (T) cutBuffer;
-                //data = (T) (new String(buffer, 0, size, "gb2312")).toString();
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-//            catch (UnsupportedEncodingException e) {
-//                e.printStackTrace();
-//            }
             return data;
         } else {
             return null;
         }
     }
+
     @Override
     public void close() {
         serialportopt.close();
         isOpen = false;
     }
+
     @Override
     public boolean isClose() {
         return isOpen;

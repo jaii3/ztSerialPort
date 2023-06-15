@@ -31,21 +31,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:windowSoftInputMode="stateHidden|adjustPan">
-        <activity android:name=".sample.MenuActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".sample.ComActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".sample.MainActivity"
-            android:windowSoftInputMode="adjustResize" />
-    </application>
+        android:windowSoftInputMode="stateHidden|adjustPan"></application>
 
 </manifest>

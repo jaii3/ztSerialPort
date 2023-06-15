@@ -14,14 +14,4 @@ public abstract class Communication {
     public abstract void close();
 
     public abstract boolean isClose();
-
-    public enum Port {
-        DwinPort,
-        WeiQianPort,
-        SerialPortMC,
-        YangChuangPort,
-        HaoJuPort,
-        SerialPort,
-        TCP
-    }
 }

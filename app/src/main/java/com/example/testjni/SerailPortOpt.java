@@ -66,11 +66,9 @@ public class SerailPortOpt extends SerialPortJNI{
 			}
 		}
 
-		//mFd = open(device.getAbsolutePath(), baudrate, flags);
 		mFd = open(device.getAbsolutePath(), baudrate,8,110,1, flags);
 		if (mFd == null) {
 			Log.e(TAG, "native open returns null");
-//			throw new IOException();
 		}
 		mFileInputStream = new FileInputStream(mFd);
 		mFileOutputStream = new FileOutputStream(mFd);
