@@ -19,9 +19,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ZTSystem {
-    private static String TAG = "ZTSystem";
-    private static ZTSystem instance = null;
+/**
+ * @author HP
+ */
+public class ZtSystem {
+    private static final String TAG = "ZTSystem";
+    private static volatile ZtSystem instance = null;
 
     /**
      * 隐藏导航栏广播
@@ -43,18 +46,18 @@ public class ZTSystem {
     }
 
     public static void setContext(Context context) {
-        ZTSystem.context = context;
+        ZtSystem.context = context;
     }
 
     private static Context context;
 
     private final String[] strUSBName = new String[]{"usb1", "usb2", "usb3", "usb4", "usb5"};
 
-    public static ZTSystem getInstance(Context context) {
+    public static ZtSystem getInstance(Context context) {
         if (instance == null) {
-            synchronized (ZTSystem.class) {
+            synchronized (ZtSystem.class) {
                 if (instance == null) {
-                    instance = new ZTSystem();
+                    instance = new ZtSystem();
                     setContext(context);
                 }
             }
@@ -62,8 +65,6 @@ public class ZTSystem {
         return instance;
     }
 
-
-    //start -导航栏/状态栏     *****************************/
 
     /**
      * 设置 导航栏和状态栏
@@ -107,10 +108,6 @@ public class ZTSystem {
         }
     }
 
-    //end -导航栏/状态栏     *****************************/
-
-
-    //start -setTime     *****************************/
 
     /**
      * 设置时间
@@ -166,10 +163,6 @@ public class ZTSystem {
         }
     }
 
-    //end -setTime *****************************/
-
-
-    //start -存储路径*****************************/
 
     /**
      * 获取内部存储路径 （表示应用的内部存储目录）
@@ -229,7 +222,6 @@ public class ZTSystem {
         }
         return usbPath;
     }
-
 
     /**
      * 获取第一个USB设备的存储路径
@@ -318,12 +310,6 @@ public class ZTSystem {
     }
 
 
-    //end -存储路径     *****************************/
-
-
-    //start -熄屏     *****************************/
-
-
     /**
      * 熄屏/亮屏 操作
      *
@@ -365,5 +351,6 @@ public class ZTSystem {
         }
         return result;
     }
+
 
 }

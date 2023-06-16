@@ -5,13 +5,11 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
-    //需要加入的两句话x
+   /* //需要加入的两句话x
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
     lintOptions {
         checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
         abortOnError false
     }
     dexOptions{
@@ -20,8 +18,7 @@ android {
     aaptOptions {
         // 是否开启 png 图片优化检查
         cruncherEnabled true
-    }
-
+    }*/
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
@@ -75,17 +72,10 @@ android {
             outputFileName = fileName
         }
     }
-    //ndkVersion '21.0.6113669'
     //jetpack 使用以下版本（git 提交需修改如下版本）
     ndkVersion '22.1.7171670'
 }
 
-
-/*configurations.all {
-    resolutionStrategy {
-        force 'androidx.core:core-ktx:1.6.0'
-    }
-}*/
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])

@@ -25,6 +25,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * @author HP
+ */
 public class SerialPortOpt extends SerialPortJNI {
 
     private static final String TAG = "SerialPort";
@@ -44,7 +47,15 @@ public class SerialPortOpt extends SerialPortJNI {
     public int mStopBits;  //停止位
     public int mParity;    //奇偶校验位
 
-    public SerialPortOpt(File device, int baudrate, int flags) {
+    /**
+     * @param device
+     * @param baud
+     * @param dataBits
+     * @param stopBits
+     * @param parity
+     * @param flags    标记 0（默认）
+     */
+    public SerialPortOpt(File device, int baud, int dataBits, int stopBits, int parity, int flags) {
 
         /* Check access permission */
         if (!device.canRead() || !device.canWrite()) {
@@ -60,12 +71,11 @@ public class SerialPortOpt extends SerialPortJNI {
                     throw new SecurityException();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
                 throw new SecurityException();
             }
         }
-
-        mFd = open(device.getAbsolutePath(), baudrate, 8, 110, 1, flags);
+        mFd = open(device.getAbsolutePath(), baud, dataBits, parity, stopBits, flags);
         if (mFd == null) {
             Log.e(TAG, "native open returns null");
         }

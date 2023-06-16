@@ -20,20 +20,18 @@ public class ZtSerialPort extends Communication {
     private final byte[] rsBuffer = new byte[1024];
 
     /**
-     * @param path     串口号
-     * @param baud     波特率
-     * @param dataBits 数据位
-     * @param stopBits 停止位
-     * @param parity   奇偶校验位
+     * @param path     串口设备文件 "/dev/ttyS1" "/dev/ttyS2" "/dev/ttyS3" "/dev/ttyS4" "/dev/ttyS5"...
+     * @param baud     波特率  2400/9600115200 ...
+     * @param dataBits 数据位，5 ~ 8  （默认8）
+     * @param stopBits 停止位，1 或 2  （默认 1）
+     * @param parity   奇偶校验，110 None（默认）； 111 Odd； 101 Eve
      */
     public ZtSerialPort(String path, int baud, int dataBits, int stopBits, int parity) {
-        serialPortOpt = new SerialPortOpt(new File(path), baud, 0);
+        serialPortOpt = new SerialPortOpt(new File(path), baud, dataBits, stopBits, parity, 0);
         openSerial(path, baud, dataBits, stopBits, parity);
     }
 
-
-    private boolean openSerial(String devNum, int speed, int dataBits,
-                               int stopBits, int parity) {
+    private boolean openSerial(String devNum, int speed, int dataBits, int stopBits, int parity) {
         if (serialPortOpt == null) {
             return false;
         }
