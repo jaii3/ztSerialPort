@@ -219,10 +219,6 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
             LOGE("Invalid baudrate");
             return NULL;
         }
-        if (parity < 0 || parity > 2) {
-            LOGE("Invalid parity");
-            return NULL;
-        }
         if (databits < 5 || databits > 8) {
             LOGE( "Invalid dataBits");
             return NULL;
