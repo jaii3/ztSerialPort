@@ -210,21 +210,20 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
     int fd;
     speed_t speed;
     jobject mFileDescriptor;
-
+    LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate,stopbits);
     /* Check arguments */
     {
         speed = getBaudrate(baudrate);
         if (speed == -1) {
-            /* TODO: throw an exception */
             LOGE("Invalid baudrate");
             return NULL;
         }
         if (databits < 5 || databits > 8) {
-            LOGE( "Invalid dataBits");
+            LOGE("Invalid dataBits");
             return NULL;
         }
         if (stopbits < 1 || stopbits > 2) {
-            LOGE( "Invalid stopBit");
+            LOGE("Invalid stopBit");
             return NULL;
         }
     }
@@ -262,7 +261,7 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
             /* TODO: throw an exception */
             return NULL;
         }
-
+        LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate,stopbits);
         cfmakeraw(&cfg);
         cfsetispeed(&cfg, speed);
         cfsetospeed(&cfg, speed);
@@ -274,7 +273,7 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
             return NULL;
         }
         //配置校验位 停止位等等
-        set_opt(fd, databits, parity, stopbits);
+    //    set_opt(fd, databits, parity, stopbits);
     }
 
     /* Create a corresponding file descriptor */
@@ -285,7 +284,7 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
         mFileDescriptor = (*env)->NewObject(env, cFileDescriptor, iFileDescriptor);
         (*env)->SetIntField(env, mFileDescriptor, descriptorID, (jint) fd);
     }
-
+    LOGD("mFileDescriptor success");
     return mFileDescriptor;
 }
 
