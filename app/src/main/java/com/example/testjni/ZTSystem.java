@@ -310,11 +310,9 @@ public class ZTSystem {
                     path = file.getAbsolutePath();
                     fileStoreDevices.add(new FileStoreDevices("sd", path));
                 }
-
-
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
         return fileStoreDevices;
     }
@@ -361,6 +359,7 @@ public class ZTSystem {
                 try {
                     dos.close();
                 } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
                 }
             }
         }

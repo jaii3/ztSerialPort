@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.4.1)
 # or SHARED, and provides the relative paths to its source code.
 add_library(
       # 设置so文件名称.
-       SerialPort
+       ZtSerialPort
        # 设置这个so文件为共享.
        SHARED
        # Provides a relative path to your source file(s).
@@ -32,7 +32,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 target_link_libraries( # Specifies the target library.
             # 制定目标库.
-            SerialPort
+            ZtSerialPort
             # Links the target library to the log library
             # included in the NDK.
             ${log-lib} )
