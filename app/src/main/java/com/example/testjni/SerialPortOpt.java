@@ -35,7 +35,6 @@ public class SerialPortOpt extends SerialPortJNI {
     /*
      * Do not remove or rename the field mFd: it is used by native method close();
      */
-//	private FileDescriptor mFd;
     private FileInputStream mFileInputStream;
     private FileOutputStream mFileOutputStream;
 
@@ -53,9 +52,9 @@ public class SerialPortOpt extends SerialPortJNI {
      * @param dataBits
      * @param stopBits
      * @param parity
-     * @param flags    标记 0（默认）
+     * @param flags    文件打开方式 0（默认）
      */
-    public SerialPortOpt(File device, int baud, int dataBits, int stopBits, int parity, int flags) {
+    public SerialPortOpt(File device, int baud, int dataBits, int stopBits, char parity, int flags) {
 
         /* Check access permission */
         if (!device.canRead() || !device.canWrite()) {
@@ -75,7 +74,7 @@ public class SerialPortOpt extends SerialPortJNI {
                 throw new SecurityException();
             }
         }
-        mFd = open(device.getAbsolutePath(), baud, dataBits, parity, stopBits, flags);
+        mFd = open(device.getAbsolutePath(), baud, dataBits, stopBits, parity, flags);
         if (mFd == null) {
             Log.e(TAG, "native open returns null");
         }

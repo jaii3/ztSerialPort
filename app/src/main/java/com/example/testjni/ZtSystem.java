@@ -284,8 +284,8 @@ public class ZtSystem {
                 }
                 boolean sd = (boolean) DiskInfo_IsSd.invoke(diskInfo);
                 boolean usb = (boolean) DiskInfo_IsUsb.invoke(diskInfo);
-                String VolumeInfo_getDescription = (String) VolumeInfo_GetDescription.invoke(volumeInfo);
-                String DiskInfo_getDescription = (String) DiskInfo_GetDescription.invoke(diskInfo);
+                String volumeInfoGetDescription = (String) VolumeInfo_GetDescription.invoke(volumeInfo);
+                String diskInfoGetDescription = (String) DiskInfo_GetDescription.invoke(diskInfo);
                 String DiskInfo_getSysPath = (String) DiskInfo_GetSysPath.invoke(diskInfo);
                 File file = (File) VolumeInfo_GetPath.invoke(volumeInfo);
 

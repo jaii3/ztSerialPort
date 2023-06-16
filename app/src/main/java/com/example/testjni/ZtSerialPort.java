@@ -24,9 +24,9 @@ public class ZtSerialPort extends Communication {
      * @param baud     波特率  2400/9600115200 ...
      * @param dataBits 数据位，5 ~ 8  （默认8）
      * @param stopBits 停止位，1 或 2  （默认 1）
-     * @param parity   奇偶校验，110 None（默认）； 111 Odd； 101 Eve
+     * @param parity   奇偶校验，‘O' 'N' 'E'
      */
-    public ZtSerialPort(String path, int baud, int dataBits, int stopBits, int parity) {
+    public ZtSerialPort(String path, int baud, int dataBits, int stopBits, char parity) {
         serialPortOpt = new SerialPortOpt(new File(path), baud, dataBits, stopBits, parity, 0);
         openSerial(path, baud, dataBits, stopBits, parity);
     }
