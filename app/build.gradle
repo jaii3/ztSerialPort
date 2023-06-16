@@ -86,9 +86,9 @@ android {
             outputFileName = fileName
         }
     }
-    ndkVersion '21.0.6113669'
+    //ndkVersion '21.0.6113669'
     //jetpack 使用以下版本（git 提交需修改如下版本）
-    //ndkVersion '21.1.6352462'
+    ndkVersion '21.1.6352462'
 
 }
 
