@@ -7,7 +7,7 @@ import java.io.FileDescriptor;
  */
 public class SerialPortJNI {
     static {//加载.C
-        System.loadLibrary("SerialPort");
+        System.loadLibrary("ZtSerialPort");
     }
 
     /**
