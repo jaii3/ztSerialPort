@@ -261,6 +261,8 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
             /* TODO: throw an exception */
             return NULL;
         }
+        //配置校验位 停止位等等
+        set_opt(fd, databits, parity, stopbits);
         LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate,stopbits);
         cfmakeraw(&cfg);
         cfsetispeed(&cfg, speed);
@@ -272,8 +274,7 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
             /* TODO: throw an exception */
             return NULL;
         }
-        //配置校验位 停止位等等
-    //    set_opt(fd, databits, parity, stopbits);
+
     }
 
     /* Create a corresponding file descriptor */
