@@ -118,7 +118,7 @@ int set_opt(struct termios *newtio, jint fd, jint nBits, jchar nEvent, jint nSto
     }
 
     //c_cflag标志可以定义CLOCAL和CREAD，这将确保该程序不被其他端口控制和信号干扰，同时串口驱动将读取进入的数据。CLOCAL和CREAD通常总是被是能的
-//    newtio->c_cflag |= CLOCAL | CREAD;
+    newtio->c_cflag |= CLOCAL | CREAD;
     newtio->c_cflag &= ~CSIZE;
 
     switch (nBits) //设置数据位数
@@ -147,13 +147,13 @@ int set_opt(struct termios *newtio, jint fd, jint nBits, jchar nEvent, jint nSto
         case 'O':
             newtio->c_cflag |= PARENB; //enable parity checking
             newtio->c_cflag |= PARODD; //奇校验位
-     //       newtio->c_iflag |= (INPCK | ISTRIP);
+            newtio->c_iflag |= (INPCK);
             LOGD("options set nEvent 奇校验位");
             break;
         case 'E':
             newtio->c_cflag |= PARENB; //
             newtio->c_cflag &= ~PARODD; //偶校验位
-       //     newtio->c_iflag |= (INPCK | ISTRIP);
+            newtio->c_iflag |= (INPCK);
             LOGD("options set nEvent 偶校验位");
             break;
         case 'N':
