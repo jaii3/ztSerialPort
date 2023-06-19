@@ -109,38 +109,34 @@ static speed_t getBaudrate(jint baudrate) {
  * @param nEvent 类型 char 校验类型 取值N ,E, O,
  * @param mStop 类型 int 停止位 取值1 或者 2
  */
-int set_opt(jint fd, jint nBits, jchar nEvent, jint nStop) {
+int set_opt(struct termios *newtio, jint fd, jint nBits, jchar nEvent, jint nStop) {
 
-    struct termios newtio;
 
-    if (tcgetattr(fd, &newtio) != 0) {
+    if (tcgetattr(fd, newtio) != 0) {
         LOGE("setup serial failure");
         return -1;
     }
-    bzero(&newtio, sizeof(newtio));
+
     //c_cflag标志可以定义CLOCAL和CREAD，这将确保该程序不被其他端口控制和信号干扰，同时串口驱动将读取进入的数据。CLOCAL和CREAD通常总是被是能的
-    newtio.c_cflag |= CLOCAL | CREAD;
+    newtio->c_cflag |= CLOCAL | CREAD;
+    newtio->c_cflag &= ~CSIZE;
 
     switch (nBits) //设置数据位数
     {
         case 5:
-            newtio.c_cflag &= ~CSIZE;
-            newtio.c_cflag |= CS5;
+            newtio->c_cflag |= CS5;
             LOGD("options set nBits CS5");
             break;
         case 6:
-            newtio.c_cflag &= ~CSIZE;
-            newtio.c_cflag |= CS6;
+            newtio->c_cflag |= CS6;
             LOGD("options set nBits CS6");
             break;
         case 7:
-            newtio.c_cflag &= ~CSIZE;
-            newtio.c_cflag |= CS7;
+            newtio->c_cflag |= CS7;
             LOGD("options set nBits CS7");
             break;
         case 8:
-            newtio.c_cflag &= ~CSIZE;
-            newtio.c_cflag |= CS8;
+            newtio->c_cflag |= CS8;
             LOGD("options set nBits CS8");
             break;
         default:
@@ -149,19 +145,19 @@ int set_opt(jint fd, jint nBits, jchar nEvent, jint nStop) {
     switch (nEvent) //设置校验位
     {
         case 'O':
-            newtio.c_cflag |= PARENB; //enable parity checking
-            newtio.c_cflag |= PARODD; //奇校验位
-            newtio.c_iflag |= (INPCK | ISTRIP);
+            newtio->c_cflag |= PARENB; //enable parity checking
+            newtio->c_cflag |= PARODD; //奇校验位
+            newtio->c_iflag |= (INPCK | ISTRIP);
             LOGD("options set nEvent 奇校验位");
             break;
         case 'E':
-            newtio.c_cflag |= PARENB; //
-            newtio.c_cflag &= ~PARODD; //偶校验位
-            newtio.c_iflag |= (INPCK | ISTRIP);
+            newtio->c_cflag |= PARENB; //
+            newtio->c_cflag &= ~PARODD; //偶校验位
+            newtio->c_iflag |= (INPCK | ISTRIP);
             LOGD("options set nEvent 偶校验位");
             break;
         case 'N':
-            newtio.c_cflag &= ~PARENB; //清除校验位
+            newtio->c_cflag &= ~PARENB; //清除校验位
             LOGD("options set nEvent 清除校验位");
             break;
         default:
@@ -170,24 +166,24 @@ int set_opt(jint fd, jint nBits, jchar nEvent, jint nStop) {
     switch (nStop) //设置停止位
     {
         case 1:
-            newtio.c_cflag &= ~CSTOPB;
+            newtio->c_cflag &= ~CSTOPB;
             LOGD("options set nStop 设置停止位 1");
             break;
         case 2:
-            newtio.c_cflag |= CSTOPB;
+            newtio->c_cflag |= CSTOPB;
             LOGD("options set nStop 设置停止位 2");
             break;
         default:
             break;
     }
 
-    newtio.c_cc[VTIME] = 0;//设置等待时间
+    newtio->c_cc[VTIME] = 0;//设置等待时间
 
-    newtio.c_cc[VMIN] = 0;//设置最小接收字符
+    newtio->c_cc[VMIN] = 0;//设置最小接收字符
 
     tcflush(fd, TCIFLUSH);
 
-    if (tcsetattr(fd, TCSANOW, &newtio) != 0) {
+    if (tcsetattr(fd, TCSANOW, newtio) != 0) {
         LOGE("options set error");
         return -1;
     }
@@ -210,7 +206,7 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
     int fd;
     speed_t speed;
     jobject mFileDescriptor;
-    LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate,stopbits);
+    LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate, stopbits);
     /* Check arguments */
     {
         speed = getBaudrate(baudrate);
@@ -261,10 +257,14 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
             /* TODO: throw an exception */
             return NULL;
         }
-        //配置校验位 停止位等等
-        set_opt(fd, databits, parity, stopbits);
-        LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate,stopbits);
+
+        LOGD("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", databits, parity, baudrate, stopbits);
         cfmakeraw(&cfg);
+
+        //配置校验位 停止位等等
+        set_opt(&cfg, fd, databits, parity, stopbits);
+
+        //设置波特率
         cfsetispeed(&cfg, speed);
         cfsetospeed(&cfg, speed);
 
