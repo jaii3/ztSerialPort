@@ -16,7 +16,8 @@ public class ZtSerialPort extends Communication {
     private final SerialPortOpt serialPortOpt;
     private InputStream mInputStream;
     protected OutputStream mOutputStream;
-    public boolean isOpen = false;
+
+    public boolean isClose = true;
 
     private final byte[] rsBuffer = new byte[2000];
 
@@ -52,7 +53,7 @@ public class ZtSerialPort extends Communication {
 
         mInputStream = serialPortOpt.getInputStream();
         mOutputStream = serialPortOpt.getOutputStream();
-        isOpen = true;
+        isClose = false;
         return true;
     }
 
@@ -98,11 +99,11 @@ public class ZtSerialPort extends Communication {
     @Override
     public void close() {
         serialPortOpt.close();
-        isOpen = false;
+        isClose = true;
     }
 
     @Override
     public boolean isClose() {
-        return isOpen;
+        return isClose;
     }
 }
