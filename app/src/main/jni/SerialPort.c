@@ -228,8 +228,14 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
     {
         jboolean iscopy;
         const char *path_utf = (*env)->GetStringUTFChars(env, path, &iscopy);
-        LOGD("Opening serial port %s with flags 0x%x", path_utf, O_RDWR | flags);
-        fd = open(path_utf, O_RDWR | flags);
+
+        if (flags == 0) {
+            fd = open(path_utf, O_RDWR | O_NONBLOCK);
+            LOGD("Opening serial port %s with flags 0x%x", path_utf, O_RDWR | O_NONBLOCK);
+        } else {
+            fd = open(path_utf, O_RDWR | flags);
+            LOGD("Opening serial port %s with flags 0x%x", path_utf, O_RDWR | flags);
+        }
         LOGD("open() fd = %d", fd);
         (*env)->ReleaseStringUTFChars(env, path, path_utf);
         if (fd == -1) {
