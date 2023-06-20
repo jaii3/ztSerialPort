@@ -2,8 +2,6 @@ package com.example.testjni;
 
 import static java.lang.System.arraycopy;
 
-import com.example.testjni.serialport.SerialPortOpt;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

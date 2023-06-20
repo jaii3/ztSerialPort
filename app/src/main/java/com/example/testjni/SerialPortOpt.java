@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.example.testjni.serialport;
+package com.example.testjni;
 
 import android.util.Log;
+
+import com.example.testjni.SerialPortJNI;
 
 import java.io.File;
 import java.io.FileDescriptor;
