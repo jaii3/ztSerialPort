@@ -30,7 +30,7 @@ import java.util.Vector;
  */
 public class SerialPortFinder {
 
-    public class Driver {
+    public static class Driver {
         public Driver(String name, String root) {
             mDriverName = name;
             mDeviceRoot = root;

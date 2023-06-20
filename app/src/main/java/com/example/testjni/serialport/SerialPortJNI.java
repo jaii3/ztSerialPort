@@ -1,4 +1,4 @@
-package com.example.testjni;
+package com.example.testjni.serialport;
 
 import java.io.FileDescriptor;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.testjni;
+package com.example.testjni.serialport;
 
 import android.util.Log;
 
@@ -39,7 +39,7 @@ public class SerialPortOpt extends SerialPortJNI {
     private FileOutputStream mFileOutputStream;
 
     public FileDescriptor mFd;
-    public int fd;        //文件描述符
+
     public String mDevNum; //串口号
     public int mSpeed;     //波特率
     public int mDataBits;  //数据位
