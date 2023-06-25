@@ -2,7 +2,7 @@
 ## 驱动环境
   RK3566 Android 11
 ## 硬件环境：
-  硬件PCB板：846B
+  硬件PCB板：
   846B板：  
         232:ttyS1 \ ttyS3 \ ttyS4 \ ttyS5  
         485:ttyS6 \ ttyS7 \ ttyS8 \ ttyS9
