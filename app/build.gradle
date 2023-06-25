@@ -52,13 +52,15 @@ android {
         }
     }
 
+    def MOB_SDK_VERSION_NAME = "1.0.0"
+
     android.libraryVariants.all { variant ->
         variant.outputs.all {
-            def fileName = "zt_serail.aar"
+            def fileName = "zt_serail-" + MOB_SDK_VERSION_NAME + ".aar"
             outputFileName = fileName
         }
     }
-   
+
     ndkVersion '22.1.7171670'
 }
 

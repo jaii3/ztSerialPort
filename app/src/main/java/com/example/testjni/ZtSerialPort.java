@@ -26,7 +26,7 @@ public class ZtSerialPort extends Communication {
 
     /**
      * @param path     节点路径 "/dev/ttyS1" "/dev/ttyS2" "/dev/ttyS3" "/dev/ttyS4" "/dev/ttyS5"...
-     * @param speed    波特率  2400/9600115200 ...
+     * @param speed    波特率  2400/9600/115200 ...
      * @param dataBits 数据位，5 ~ 8  （默认8）
      * @param stopBits 停止位，1 或 2  （默认 1）
      * @param parity   奇偶校验，‘O' 'N' 'E'
@@ -39,7 +39,7 @@ public class ZtSerialPort extends Communication {
 
     /**
      * @param path     节点路径 "/dev/ttyS1" "/dev/ttyS2" "/dev/ttyS3" "/dev/ttyS4" "/dev/ttyS5"...
-     * @param speed    波特率  2400/9600115200 ...
+     * @param speed    波特率  2400/9600/115200 ...
      * @param dataBits 数据位，5 ~ 8  （默认8）
      * @param stopBits 停止位，1 或 2  （默认 1）
      * @param parity   奇偶校验，‘O' 'N' 'E'
@@ -65,6 +65,10 @@ public class ZtSerialPort extends Communication {
         return serialPortOpt;
     }
 
+    /**
+     * @param data 数据buffer
+     * @param <T>
+     */
     @Override
     public <T> void sendData(T data) {
         try {
