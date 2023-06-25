@@ -22,9 +22,27 @@
 
 ## 功能引用说明
 
+    可将此包引用到实际项目中进行串口支持、RK3566 Android 11 系统功能支持的开发
+
 ### aar包导入
 
-    1、此串口驱动包编译后生成zt_serail.aar 包，可将此包应用到项目中进行串口支持、RK3566 Android 11 系统功能支持
+    1、此串口驱动包编译后生成 zt_serail-x.x.x.aar 包
+
+````
+    app build.gradle
+    android{
+    
+         repositories {
+            flatDir {
+                dir 'libs'
+            }
+        }
+    }
+    
+    dependencies {
+       implementation(name:'zt_serail-1.0.0', ext:'aar')  
+    }
+````
 
 ### gradle应用
 
