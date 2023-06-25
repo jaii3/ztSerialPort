@@ -2,6 +2,8 @@ package com.example.testjni;
 
 import static java.lang.System.arraycopy;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +15,8 @@ import java.io.OutputStream;
  */
 public class ZtSerialPort extends Communication {
 
-    private final SerialPortOpt serialPortOpt;
+    private final String TAG = "ZtSerialPort";
+    private SerialPortOpt serialPortOpt;
     private InputStream mInputStream;
     protected OutputStream mOutputStream;
 
@@ -27,9 +30,10 @@ public class ZtSerialPort extends Communication {
      * @param dataBits 数据位，5 ~ 8  （默认8）
      * @param stopBits 停止位，1 或 2  （默认 1）
      * @param parity   奇偶校验，‘O' 'N' 'E'
+     * @param flag     阻塞非阻塞 1:非阻塞  0 ：阻塞
      */
-    public ZtSerialPort(String path, int speed, int dataBits, int stopBits, char parity) {
-        serialPortOpt = new SerialPortOpt(new File(path), speed, dataBits, stopBits, parity, 0);
+    public ZtSerialPort(String path, int speed, int dataBits, int stopBits, char parity, int flag) {
+        serialPortOpt = new SerialPortOpt(new File(path), speed, dataBits, stopBits, parity, flag);
         openSerial(path, speed, dataBits, stopBits, parity);
     }
 
@@ -88,7 +92,7 @@ public class ZtSerialPort extends Communication {
             try {
                 arraycopy(rsBuffer, 0, cutBuffer, 0, size);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
             return (T) cutBuffer;
         } else {
@@ -98,8 +102,15 @@ public class ZtSerialPort extends Communication {
 
     @Override
     public void close() {
-        serialPortOpt.close();
-        isClose = true;
+        try {
+            if (serialPortOpt != null) {
+                serialPortOpt.close();
+                serialPortOpt = null;
+            }
+            isClose = true;
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     @Override

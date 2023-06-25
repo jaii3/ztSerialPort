@@ -5,20 +5,6 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
-   /* //需要加入的两句话x
-    aaptOptions.cruncherEnabled = false
-    aaptOptions.useNewCruncher = false
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
-    }
-    dexOptions{
-        preDexLibraries = false
-    }
-    aaptOptions {
-        // 是否开启 png 图片优化检查
-        cruncherEnabled true
-    }*/
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
@@ -72,9 +58,8 @@ android {
             outputFileName = fileName
         }
     }
-    //jetpack 使用以下版本（git 提交需修改如下版本）
+   
     ndkVersion '22.1.7171670'
-   // ndkVersion '21.1.6352462'
 }
 
 

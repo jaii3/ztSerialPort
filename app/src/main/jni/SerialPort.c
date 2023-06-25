@@ -103,96 +103,6 @@ static speed_t getBaudrate(jint baudrate) {
 }
 
 
-/*
- * 设置串口数据，校验位,速率，停止位
- * @param nBits 类型 int数据位 取值 位7或8
- * @param nEvent 类型 char 校验类型 取值N ,E, O,
- * @param mStop 类型 int 停止位 取值1 或者 2
- */
-int set_opt(struct termios *newtio, jint fd, jint nBits, jchar nEvent, jint nStop) {
-
-
-    if (tcgetattr(fd, newtio) != 0) {
-        LOGE("setup serial failure");
-        return -1;
-    }
-
-    //c_cflag标志可以定义CLOCAL和CREAD，这将确保该程序不被其他端口控制和信号干扰，同时串口驱动将读取进入的数据。CLOCAL和CREAD通常总是被是能的
-    newtio->c_cflag |= CLOCAL | CREAD;
-    newtio->c_cflag &= ~CSIZE;
-
-    switch (nBits) //设置数据位数
-    {
-        case 5:
-            newtio->c_cflag |= CS5;
-            LOGD("options set nBits CS5");
-            break;
-        case 6:
-            newtio->c_cflag |= CS6;
-            LOGD("options set nBits CS6");
-            break;
-        case 7:
-            newtio->c_cflag |= CS7;
-            LOGD("options set nBits CS7");
-            break;
-        case 8:
-            newtio->c_cflag |= CS8;
-            LOGD("options set nBits CS8");
-            break;
-        default:
-            break;
-    }
-    switch (nEvent) //设置校验位
-    {
-        case 'O':
-            newtio->c_cflag |= PARENB; //enable parity checking
-            newtio->c_cflag |= PARODD; //奇校验位
-            newtio->c_iflag |= (INPCK);
-            LOGD("options set nEvent 奇校验位");
-            break;
-        case 'E':
-            newtio->c_cflag |= PARENB; //
-            newtio->c_cflag &= ~PARODD; //偶校验位
-            newtio->c_iflag |= (INPCK);
-            LOGD("options set nEvent 偶校验位");
-            break;
-        case 'N':
-            newtio->c_cflag &= ~PARENB; //清除校验位
-            LOGD("options set nEvent 清除校验位");
-            break;
-        default:
-            break;
-    }
-    switch (nStop) //设置停止位
-    {
-        case 1:
-            newtio->c_cflag &= ~CSTOPB;
-            LOGD("options set nStop 设置停止位 1");
-            break;
-        case 2:
-            newtio->c_cflag |= CSTOPB;
-            LOGD("options set nStop 设置停止位 2");
-            break;
-        default:
-            break;
-    }
-
-    newtio->c_cc[VTIME] = 0;//设置等待时间
-
-    newtio->c_cc[VMIN] = 0;//设置最小接收字符
-
-    tcflush(fd, TCIFLUSH);
-
-    if (tcsetattr(fd, TCSANOW, newtio) != 0) {
-        LOGE("options set error");
-        return -1;
-    }
-
-    LOGD("options set success");
-    return 1;
-
-}
-
 
 
 /*
@@ -229,7 +139,7 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
         jboolean iscopy;
         const char *path_utf = (*env)->GetStringUTFChars(env, path, &iscopy);
 
-        if (flags == 0) {
+        if (flags == 1) {
             fd = open(path_utf, O_RDWR | O_NONBLOCK);
             LOGD("Opening serial port %s with flags 0x%x", path_utf, O_RDWR | O_NONBLOCK);
         } else {
@@ -270,8 +180,71 @@ JNIEXPORT jobject JNICALL Java_com_example_testjni_SerialPortJNI_open
         cfsetispeed(&cfg, speed);
         cfsetospeed(&cfg, speed);
         //配置校验位 停止位等等
-        set_opt(&cfg, fd, databits, parity, stopbits);
+        {
+            //c_cflag标志可以定义CLOCAL和CREAD，这将确保该程序不被其他端口控制和信号干扰，同时串口驱动将读取进入的数据。CLOCAL和CREAD通常总是被是能的
+            cfg.c_cflag |= CLOCAL | CREAD;
+            cfg.c_cflag &= ~CSIZE;
 
+            switch (databits) //设置数据位数
+            {
+                case 5:
+                    cfg.c_cflag |= CS5;
+                    LOGD("options set nBits CS5");
+                    break;
+                case 6:
+                    cfg.c_cflag |= CS6;
+                    LOGD("options set nBits CS6");
+                    break;
+                case 7:
+                    cfg.c_cflag |= CS7;
+                    LOGD("options set nBits CS7");
+                    break;
+                case 8:
+                    cfg.c_cflag |= CS8;
+                    LOGD("options set nBits CS8");
+                    break;
+                default:
+                    break;
+            }
+            switch (parity) //设置校验位
+            {
+                case 'O':
+                    cfg.c_cflag |= PARENB; //enable parity checking
+                    cfg.c_cflag |= PARODD; //奇校验位
+                    cfg.c_iflag |= INPCK;
+                    LOGD("options set nEvent 奇校验位");
+                    break;
+                case 'E':
+                    cfg.c_cflag |= PARENB; //
+                    cfg.c_cflag &= ~PARODD; //偶校验位
+                    cfg.c_iflag |= INPCK;
+                    LOGD("options set nEvent 偶校验位");
+                    break;
+                case 'N':
+                    cfg.c_cflag &= ~PARENB; //清除校验位
+                    cfg.c_iflag &= ~INPCK; /* Disnable parity checking */
+                    LOGD("options set nEvent 清除校验位");
+                    break;
+                default:
+                    break;
+            }
+            switch (stopbits) //设置停止位
+            {
+                case 1:
+                    cfg.c_cflag &= ~CSTOPB;
+                    LOGD("options set nStop 设置停止位 1");
+                    break;
+                case 2:
+                    cfg.c_cflag |= CSTOPB;
+                    LOGD("options set nStop 设置停止位 2");
+                    break;
+                default:
+                    break;
+            }
+            cfg.c_cc[VTIME] = 0;//设置等待时间
+            cfg.c_cc[VMIN] = 0;//设置最小接收字符
+            tcflush(fd, TCIFLUSH);
+        }
         if (tcsetattr(fd, TCSANOW, &cfg)) {
             LOGE("tcsetattr() failed");
             close(fd);
