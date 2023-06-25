@@ -12,3 +12,25 @@
 ## 串口设备查询
  adb shell  
  ls -l /dev/ttyS*
+
+## 代码说明
+    1、此串口驱动包编译后生成zt_serail.aar 包，可将此包应用到项目中进行串口支持、RK3566 Android 11 系统功能支持
+    2、
+### 串口支持说明
+    1、打开串口
+    串口通信前需要打开串口；
+    `ztSerialPortS0 = new ZtSerialPort("/dev/ttyS0", speed, dataBits, 1, parity, 1);`
+
+    2、发送数据
+    打开串口后，使用 sendData 方法向下位机硬件设备发送数据
+    ```
+    ztSerialPortS0.sendData(data);
+    ````
+    3、接收数据
+
+    ```
+    ztSerialPortS0.receiveData(data);
+    ````
+    4、关闭串口
+     ztSerialPortS0.close();
+
