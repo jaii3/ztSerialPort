@@ -85,7 +85,7 @@
     3、接收数据
 
 ````
-    ztSerialPortS0.receiveData(data);
+    ztSerialPortS0.receiveData();
 ````
 
     4、关闭串口
