@@ -5,6 +5,15 @@ package com.example.testjni;
  */
 public class FileStoreDevices {
     String path;
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     String name;
 
     FileStoreDevices(String name, String path){

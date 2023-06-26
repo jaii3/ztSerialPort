@@ -52,7 +52,7 @@ android {
         }
     }
 
-    def MOB_SDK_VERSION_NAME = "1.0.0"
+    def MOB_SDK_VERSION_NAME = "1.0.1"
 
     android.libraryVariants.all { variant ->
         variant.outputs.all {
